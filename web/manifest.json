@@ -1,13 +1,14 @@
 {
-    "name": "Cotizador Zebra",
-    "short_name": "Zebra PWA",
+    "name": "TechNews - Noticias de Tecnología",
+    "short_name": "TechNews",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#0d47a1",
-    "description": "Aplicación para cotización y levantamiento de mantenimiento de impresoras Zebra.",
-    "orientation": "portrait-primary",
+    "background_color": "#0A0E1A",
+    "theme_color": "#0090FF",
+    "description": "Blog de noticias tecnológicas. Disponible para web y smartwatch.",
+    "orientation": "any",
     "prefer_related_applications": false,
+    "categories": ["news", "technology"],
     "icons": [
         {
             "src": "icons/Icon-192.png",
