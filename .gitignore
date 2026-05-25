@@ -1,0 +1,156 @@
+# -------------------------------------------------------------------------
+# Flutter / Dart
+# -------------------------------------------------------------------------
+# Herramientas de Dart y dependencias descargadas
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+# Archivos de plugins generados dinámicamente
+.flutter-plugins
+.flutter-plugins-dependencies
+.plugin_symlinks
+
+# Directorio principal de compilación (Artifacts)
+build/
+
+# Archivos de símbolos para depuración en producción
+app.*.symbols
+app.*.map.json
+
+# -------------------------------------------------------------------------
+# Android
+# -------------------------------------------------------------------------
+.gradle/
+local.properties
+*.apk
+*.aab
+*.ap_
+*.dex
+captures/
+assets/flutter_assets/
+
+# -------------------------------------------------------------------------
+# iOS y macOS (Xcode)
+# -------------------------------------------------------------------------
+# Archivos efímeros y configuraciones generadas por Flutter
+ios/Flutter/Ephemeral.dir/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+macos/Flutter/Ephemeral.dir/
+macos/Flutter/Generated.xcconfig
+
+# CocoaPods - Se ignoran porque se reconstruyen con 'flutter pub get'
+**/Pods/
+**/.symlinks/
+**/DerivedData/
+.xcworkspace/
+
+# Archivos de usuario de Xcode
+*.mode1v3
+*.mode2v3
+*.storyboardc
+*.perspectivev3
+xcuserdata/
+
+# Archivos de logs y estado de Xcode
+*.xccheckout
+*.moved-aside
+xcworkspace_design_data/
+
+# -------------------------------------------------------------------------
+# Linux & Windows Desktop
+# -------------------------------------------------------------------------
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
+*.cmake
+CMakeSettings.json
+
+# -------------------------------------------------------------------------
+# IDEs y Editores de Código
+# -------------------------------------------------------------------------
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+cmake-build-*/
+
+# Visual Studio Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+
+# Otros editores y temporales
+*.swp
+*~
+.history
+
+# -------------------------------------------------------------------------
+# Archivos del Sistema Operativo
+# -------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -------------------------------------------------------------------------
+# Seguridad y Secretos (¡Crucial!)
+# -------------------------------------------------------------------------
+# Archivos de variables de entorno
+.env
+.env.*
+!.env.example
+
+# Llaves de firmado y certificados
+*.keystore
+*.jks
+*.p12
+*.developerprofile
+*.mobileprovision
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
