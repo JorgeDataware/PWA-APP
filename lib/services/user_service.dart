@@ -1,13 +1,17 @@
+import '../core/constants.dart';
+import '../core/mock_data.dart';
 import '../models/user.dart';
 import 'api_client.dart';
 
 class UserService {
   static Future<List<User>> getUsers() async {
+    if (AppConstants.useMockData) return MockData.users();
     final data = await ApiClient.get('/api/web/users') as List;
     return data.map((e) => User.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   static Future<User> getUserById(int id) async {
+    if (AppConstants.useMockData) return MockData.userById(id);
     final data = await ApiClient.get('/api/web/users/$id');
     return User.fromJson(data as Map<String, dynamic>);
   }
@@ -19,6 +23,15 @@ class UserService {
     required String password,
     required int role,
   }) async {
+    if (AppConstants.useMockData) {
+      return MockData.createUser(
+        fullName: fullName,
+        username: username,
+        email: email,
+        password: password,
+        role: role,
+      );
+    }
     final data = await ApiClient.post('/api/web/users', {
       'fullName': fullName,
       'username': username,
@@ -37,6 +50,16 @@ class UserService {
     String? password,
     int? role,
   }) async {
+    if (AppConstants.useMockData) {
+      return MockData.updateUser(
+        id,
+        fullName: fullName,
+        username: username,
+        email: email,
+        password: password,
+        role: role,
+      );
+    }
     final body = <String, dynamic>{};
     if (fullName != null) body['fullName'] = fullName;
     if (username != null) body['username'] = username;
@@ -48,10 +71,12 @@ class UserService {
   }
 
   static Future<void> deleteUser(int id) async {
+    if (AppConstants.useMockData) return MockData.deleteUser(id);
     await ApiClient.delete('/api/web/users/$id');
   }
 
   static Future<User> getProfile() async {
+    if (AppConstants.useMockData) return MockData.profile();
     final data = await ApiClient.get('/api/profile');
     return User.fromJson(data as Map<String, dynamic>);
   }
@@ -62,6 +87,14 @@ class UserService {
     String? email,
     String? password,
   }) async {
+    if (AppConstants.useMockData) {
+      return MockData.updateProfile(
+        fullName: fullName,
+        username: username,
+        email: email,
+        password: password,
+      );
+    }
     final body = <String, dynamic>{};
     if (fullName != null) body['fullName'] = fullName;
     if (username != null) body['username'] = username;

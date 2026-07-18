@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../models/news.dart';
-import '../../providers/auth_provider.dart';
 import '../../services/news_service.dart';
 import '../../widgets/news_card.dart';
 
@@ -36,14 +34,13 @@ class _WearableNewsListScreenState extends State<WearableNewsListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.read<AuthProvider>().user;
-
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 40,
+        toolbarHeight: 48,
+        centerTitle: true,
         title: const Text(
           'TechNews',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
@@ -67,24 +64,6 @@ class _WearableNewsListScreenState extends State<WearableNewsListScreen> {
                     ? const _EmptyState()
                     : _NewsList(news: _news!),
       ),
-      bottomNavigationBar: Container(
-        color: AppTheme.surface,
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              user?.fullName ?? '',
-              style: const TextStyle(
-                color: AppTheme.textSecondary,
-                fontSize: 10,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -96,7 +75,8 @@ class _NewsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      // Extra clearance prevents content from entering the curved screen edges.
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
       itemCount: news.length,
       separatorBuilder: (_, __) => const Divider(height: 1),
       itemBuilder: (context, i) => WearableNewsCard(

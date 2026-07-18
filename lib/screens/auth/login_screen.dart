@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../../core/constants.dart';
+import '../../core/mock_data.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
 import '../../providers/auth_provider.dart';
@@ -18,6 +20,17 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordCtrl = TextEditingController();
   bool _obscure = true;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    // In front-end-only mode, pre-fill the default credentials so the
+    // dashboard can be reached with a single tap.
+    if (AppConstants.useMockData) {
+      _emailCtrl.text = MockData.defaultEmail;
+      _passwordCtrl.text = MockData.defaultPassword;
+    }
+  }
 
   @override
   void dispose() {
@@ -146,6 +159,28 @@ class _LoginScreenState extends State<LoginScreen> {
                             )
                           : const Text('Iniciar sesión'),
                     ),
+                    if (AppConstants.useMockData) ...[
+                      SizedBox(height: wearable ? 10 : 14),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primary.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppTheme.primary.withOpacity(0.25),
+                          ),
+                        ),
+                        child: Text(
+                          'Modo demo (sin backend)\n'
+                          '${MockData.defaultEmail} · ${MockData.defaultPassword}',
+                          style: const TextStyle(
+                            color: AppTheme.textSecondary,
+                            fontSize: 12,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
                     if (!wearable) ...[
                       const SizedBox(height: 16),
                       Row(

@@ -37,12 +37,13 @@ class _WearableNewsDetailScreenState extends State<WearableNewsDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 36,
+        toolbarHeight: 48,
+        centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, size: 18),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Noticia', style: TextStyle(fontSize: 13)),
+        title: const Text('Noticia', style: TextStyle(fontSize: 14)),
       ),
       body: SafeArea(
         child: _loading
@@ -80,7 +81,8 @@ class _NewsDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(12),
+      // Keep text and controls within the usable area of a round display.
+      padding: const EdgeInsets.fromLTRB(24, 14, 24, 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'core/theme.dart';
 import 'core/utils.dart';
+import 'core/app_mode.dart';
 import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
@@ -20,6 +21,7 @@ import 'screens/wearable/wearable_news_detail_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('es', null);
+  await AppMode.initialize();
   final authProvider = AuthProvider();
   await authProvider.initialize();
   runApp(TechNewsApp(authProvider: authProvider));
@@ -61,6 +63,9 @@ class _TechNewsAppState extends State<TechNewsApp> {
       refreshListenable: auth,
       initialLocation: '/news',
       redirect: (context, state) {
+        if (AppMode.isWearable) {
+          return state.matchedLocation.startsWith('/news') ? null : '/news';
+        }
         final authenticated = auth.isAuthenticated;
         final path = state.matchedLocation;
         final isAuthPath = path == '/login' || path == '/register';

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'constants.dart';
+import 'app_mode.dart';
 
 extension ContextExtensions on BuildContext {
   double get screenWidth => MediaQuery.of(this).size.width;
-  bool get isWearable => screenWidth <= AppConstants.wearableBreakpoint;
+  bool get isWearable =>
+      AppMode.isWearable || screenWidth <= AppConstants.wearableBreakpoint;
   bool get isMobile => screenWidth <= AppConstants.tabletBreakpoint;
   bool get isDesktop => screenWidth > AppConstants.tabletBreakpoint;
 }

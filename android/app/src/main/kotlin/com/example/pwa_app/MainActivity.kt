@@ -1,5 +1,21 @@
 package com.example.pwa_app
 
+import android.content.pm.PackageManager
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
 
-class MainActivity : FlutterActivity()
+class MainActivity : FlutterActivity() {
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.technews/device")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "isWearable" -> result.success(
+                        packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH)
+                    )
+                    else -> result.notImplemented()
+                }
+            }
+    }
+}

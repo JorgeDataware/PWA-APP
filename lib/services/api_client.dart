@@ -31,8 +31,12 @@ class ApiClient {
     await prefs.remove(_tokenKey);
   }
 
-  static Future<Map<String, String>> _headers({bool auth = true}) async {
-    final h = {'Content-Type': 'application/json'};
+  static Future<Map<String, String>> _headers({
+    bool auth = true,
+    bool jsonContent = false,
+  }) async {
+    final h = <String, String>{};
+    if (jsonContent) h['Content-Type'] = 'application/json';
     if (auth) {
       final token = await getToken();
       if (token != null) h['Authorization'] = 'Bearer $token';
@@ -55,7 +59,7 @@ class ApiClient {
   }) async {
     final res = await http.post(
       _uri(path),
-      headers: await _headers(auth: auth),
+      headers: await _headers(auth: auth, jsonContent: true),
       body: jsonEncode(body),
     );
     return _handle(res);
@@ -67,7 +71,7 @@ class ApiClient {
   ) async {
     final res = await http.put(
       _uri(path),
-      headers: await _headers(),
+      headers: await _headers(jsonContent: true),
       body: jsonEncode(body),
     );
     return _handle(res);
