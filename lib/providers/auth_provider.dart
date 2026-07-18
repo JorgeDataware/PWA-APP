@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../core/constants.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
 import '../services/api_client.dart';
@@ -16,7 +17,12 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> initialize() async {
     final token = await ApiClient.getToken();
-    if (token != null) {
+    // Discard the token created by earlier mock-data builds. It is not valid
+    // against the production API and would otherwise keep the user "logged in".
+    if (!AppConstants.useMockData && token?.startsWith('mock-token-') == true) {
+      await ApiClient.clearToken();
+      await _clearPersisted();
+    } else if (token != null) {
       final prefs = await SharedPreferences.getInstance();
       final id = prefs.getInt('user_id');
       final fullName = prefs.getString('user_full_name') ?? '';
