@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../models/news.dart';
+import '../../providers/wear_pin_provider.dart';
 import '../../services/news_service.dart';
 import '../../widgets/news_card.dart';
 
@@ -43,6 +45,14 @@ class _WearableNewsListScreenState extends State<WearableNewsListScreen> {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.lock_outline, size: 18),
+            tooltip: 'Bloquear',
+            onPressed: () {
+              context.read<WearPinProvider>().lock();
+              context.go('/pin');
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh, size: 18),
             onPressed: () {
