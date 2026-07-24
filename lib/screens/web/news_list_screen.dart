@@ -39,6 +39,7 @@ class _NewsListScreenState extends State<NewsListScreen> {
         setState(() {
           _news = results[0] as List<News>;
           _favoriteIds = (results[1] as List<Favorite>).map((f) => f.newsId).toSet();
+          _error = null;
           _loading = false;
         });
       }
@@ -119,11 +120,13 @@ class _NewsListScreenState extends State<NewsListScreen> {
                               news: _news!,
                               favoriteIds: _favoriteIds,
                               onToggleFavorite: _toggleFavorite,
+                              onNewsClosed: _load,
                             )
                           : _GridView(
                               news: _news!,
                               favoriteIds: _favoriteIds,
                               onToggleFavorite: _toggleFavorite,
+                              onNewsClosed: _load,
                             ),
                     ),
     );
@@ -134,11 +137,13 @@ class _ListView extends StatelessWidget {
   final List<News> news;
   final Set<int> favoriteIds;
   final void Function(int) onToggleFavorite;
+  final Future<void> Function() onNewsClosed;
 
   const _ListView({
     required this.news,
     required this.favoriteIds,
     required this.onToggleFavorite,
+    required this.onNewsClosed,
   });
 
   @override
@@ -152,7 +157,9 @@ class _ListView extends StatelessWidget {
         news: news[i],
         isFavorite: favoriteIds.contains(news[i].id),
         onFavoriteToggle: user != null ? () => onToggleFavorite(news[i].id) : null,
-        onTap: () => context.push('/news/${news[i].id}'),
+        onTap: () {
+          context.push('/news/${news[i].id}').then((_) => onNewsClosed());
+        },
       ),
     );
   }
@@ -162,11 +169,13 @@ class _GridView extends StatelessWidget {
   final List<News> news;
   final Set<int> favoriteIds;
   final void Function(int) onToggleFavorite;
+  final Future<void> Function() onNewsClosed;
 
   const _GridView({
     required this.news,
     required this.favoriteIds,
     required this.onToggleFavorite,
+    required this.onNewsClosed,
   });
 
   @override
@@ -185,7 +194,9 @@ class _GridView extends StatelessWidget {
         news: news[i],
         isFavorite: favoriteIds.contains(news[i].id),
         onFavoriteToggle: user != null ? () => onToggleFavorite(news[i].id) : null,
-        onTap: () => context.push('/news/${news[i].id}'),
+        onTap: () {
+          context.push('/news/${news[i].id}').then((_) => onNewsClosed());
+        },
       ),
     );
   }

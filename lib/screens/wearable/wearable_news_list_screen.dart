@@ -26,7 +26,13 @@ class _WearableNewsListScreenState extends State<WearableNewsListScreen> {
   Future<void> _load() async {
     try {
       final news = await NewsService.getWearableNews();
-      if (mounted) setState(() { _news = news; _loading = false; });
+      if (mounted) {
+        setState(() {
+          _news = news;
+          _error = null;
+          _loading = false;
+        });
+      }
     } catch (e) {
       if (mounted) setState(() { _error = e.toString(); _loading = false; });
     }
@@ -62,7 +68,10 @@ class _WearableNewsListScreenState extends State<WearableNewsListScreen> {
                   })
                 : _news == null || _news!.isEmpty
                     ? const _EmptyState()
-                    : _NewsList(news: _news!),
+                    : _NewsList(
+                        news: _news!,
+                        onNewsClosed: _load,
+                      ),
       ),
     );
   }
@@ -70,7 +79,9 @@ class _WearableNewsListScreenState extends State<WearableNewsListScreen> {
 
 class _NewsList extends StatelessWidget {
   final List<News> news;
-  const _NewsList({required this.news});
+  final Future<void> Function() onNewsClosed;
+
+  const _NewsList({required this.news, required this.onNewsClosed});
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +92,9 @@ class _NewsList extends StatelessWidget {
       separatorBuilder: (_, __) => const Divider(height: 1),
       itemBuilder: (context, i) => WearableNewsCard(
         news: news[i],
-        onTap: () => context.push('/news/${news[i].id}'),
+        onTap: () {
+          context.push('/news/${news[i].id}').then((_) => onNewsClosed());
+        },
       ),
     );
   }
