@@ -44,8 +44,7 @@ class ApiClient {
     return h;
   }
 
-  static Uri _uri(String path) =>
-      Uri.parse('${AppConstants.baseUrl}$path');
+  static Uri _uri(String path) => Uri.parse('${AppConstants.baseUrl}$path');
 
   static Future<dynamic> get(String path) async {
     final res = await http.get(_uri(path), headers: await _headers());
@@ -65,11 +64,17 @@ class ApiClient {
     return _handle(res);
   }
 
-  static Future<dynamic> put(
-    String path,
-    Map<String, dynamic> body,
-  ) async {
+  static Future<dynamic> put(String path, Map<String, dynamic> body) async {
     final res = await http.put(
+      _uri(path),
+      headers: await _headers(jsonContent: true),
+      body: jsonEncode(body),
+    );
+    return _handle(res);
+  }
+
+  static Future<dynamic> patch(String path, Map<String, dynamic> body) async {
+    final res = await http.patch(
       _uri(path),
       headers: await _headers(jsonContent: true),
       body: jsonEncode(body),
@@ -87,10 +92,7 @@ class ApiClient {
       if (res.body.isEmpty || res.body == 'null') return null;
       return jsonDecode(res.body);
     }
-    throw ApiException(
-      statusCode: res.statusCode,
-      message: _extractError(res),
-    );
+    throw ApiException(statusCode: res.statusCode, message: _extractError(res));
   }
 
   static void _handleNoContent(http.Response res) {
@@ -109,9 +111,7 @@ class ApiClient {
         if (body['errors'] != null) {
           final errors = body['errors'];
           if (errors is Map) {
-            return errors.values
-                .expand((v) => v is List ? v : [v])
-                .join(', ');
+            return errors.values.expand((v) => v is List ? v : [v]).join(', ');
           }
           return errors.toString();
         }

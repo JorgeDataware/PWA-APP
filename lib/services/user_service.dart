@@ -22,6 +22,7 @@ class UserService {
     required String email,
     required String password,
     required int role,
+    bool mustChangePassword = false,
   }) async {
     if (AppConstants.useMockData) {
       return MockData.createUser(
@@ -38,6 +39,7 @@ class UserService {
       'email': email,
       'password': password,
       'role': role,
+      'mustChangePassword': mustChangePassword,
     });
     return User.fromJson(data as Map<String, dynamic>);
   }
@@ -49,6 +51,7 @@ class UserService {
     String? email,
     String? password,
     int? role,
+    bool? mustChangePassword,
   }) async {
     if (AppConstants.useMockData) {
       return MockData.updateUser(
@@ -66,13 +69,23 @@ class UserService {
     if (email != null) body['email'] = email;
     if (password != null && password.isNotEmpty) body['password'] = password;
     if (role != null) body['role'] = role;
+    if (mustChangePassword != null) {
+      body['mustChangePassword'] = mustChangePassword;
+    }
     final data = await ApiClient.put('/api/web/users/$id', body);
     return User.fromJson(data as Map<String, dynamic>);
   }
 
-  static Future<void> deleteUser(int id) async {
-    if (AppConstants.useMockData) return MockData.deleteUser(id);
-    await ApiClient.delete('/api/web/users/$id');
+  static Future<User> setUserStatus(int id, bool isActive) async {
+    if (AppConstants.useMockData) {
+      throw UnsupportedError(
+        'El estado de usuarios no está disponible con datos de prueba.',
+      );
+    }
+    final data = await ApiClient.patch('/api/web/users/$id/status', {
+      'isActive': isActive,
+    });
+    return User.fromJson(data as Map<String, dynamic>);
   }
 
   static Future<User> getProfile() async {
