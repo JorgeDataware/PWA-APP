@@ -6,6 +6,7 @@ import '../../core/mock_data.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/app_footer.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -60,8 +61,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Center(
+            child: Padding(
             padding: EdgeInsets.all(wearable ? 16 : 32),
             child: ConstrainedBox(
               constraints: BoxConstraints(
@@ -196,11 +200,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
+                      TextButton(
+                        onPressed: () => context.go('/news'),
+                        child: const Text('Explorar noticias sin cuenta'),
+                      ),
                     ],
                   ],
                 ),
               ),
             ),
+            ),
+              ),
+              if (!wearable) const AppFooter(),
+            ],
           ),
         ),
       ),

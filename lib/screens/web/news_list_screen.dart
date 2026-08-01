@@ -4,11 +4,11 @@ import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
 import '../../models/news.dart';
-import '../../models/favorite.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/news_service.dart';
 import '../../services/favorites_service.dart';
 import '../../widgets/news_card.dart';
+import '../../widgets/app_footer.dart';
 
 class NewsListScreen extends StatefulWidget {
   const NewsListScreen({super.key});
@@ -30,15 +30,16 @@ class _NewsListScreenState extends State<NewsListScreen> {
   }
 
   Future<void> _load() async {
+    final isAuthenticated = context.read<AuthProvider>().isAuthenticated;
     try {
-      final results = await Future.wait([
-        NewsService.getWebNews(),
-        FavoritesService.getFavorites(),
-      ]);
+      final news = await NewsService.getWebNews();
+      final favoriteIds = isAuthenticated
+          ? (await FavoritesService.getFavorites()).map((f) => f.newsId).toSet()
+          : <int>{};
       if (mounted) {
         setState(() {
-          _news = results[0] as List<News>;
-          _favoriteIds = (results[1] as List<Favorite>).map((f) => f.newsId).toSet();
+          _news = news;
+          _favoriteIds = favoriteIds;
           _error = null;
           _loading = false;
         });
@@ -46,6 +47,15 @@ class _NewsListScreenState extends State<NewsListScreen> {
     } catch (e) {
       if (mounted) setState(() { _error = e.toString(); _loading = false; });
     }
+  }
+
+  void _promptLogin() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Inicia sesión para guardar noticias en favoritos'),
+        action: SnackBarAction(label: 'Iniciar sesión', onPressed: () => context.go('/login')),
+      ),
+    );
   }
 
   Future<void> _toggleFavorite(int newsId) async {
@@ -83,6 +93,7 @@ class _NewsListScreenState extends State<NewsListScreen> {
   Widget build(BuildContext context) {
     final isDesktop = context.isDesktop;
     final crossAxisCount = isDesktop ? 2 : 1;
+    final isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
 
     return Scaffold(
       appBar: AppBar(
@@ -94,6 +105,18 @@ class _NewsListScreenState extends State<NewsListScreen> {
           ],
         ),
         actions: [
+          if (!isAuthenticated) ...[
+            TextButton(
+              onPressed: () => context.go('/login'),
+              child: const Text('Iniciar sesión'),
+            ),
+            if (isDesktop)
+              OutlinedButton(
+                onPressed: () => context.go('/register'),
+                child: const Text('Registrarse'),
+              ),
+            const SizedBox(width: 8),
+          ],
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'Actualizar',
@@ -119,13 +142,17 @@ class _NewsListScreenState extends State<NewsListScreen> {
                           ? _ListView(
                               news: _news!,
                               favoriteIds: _favoriteIds,
+                              isAuthenticated: isAuthenticated,
                               onToggleFavorite: _toggleFavorite,
+                              onPromptLogin: _promptLogin,
                               onNewsClosed: _load,
                             )
                           : _GridView(
                               news: _news!,
                               favoriteIds: _favoriteIds,
+                              isAuthenticated: isAuthenticated,
                               onToggleFavorite: _toggleFavorite,
+                              onPromptLogin: _promptLogin,
                               onNewsClosed: _load,
                             ),
                     ),
@@ -136,31 +163,42 @@ class _NewsListScreenState extends State<NewsListScreen> {
 class _ListView extends StatelessWidget {
   final List<News> news;
   final Set<int> favoriteIds;
+  final bool isAuthenticated;
   final void Function(int) onToggleFavorite;
+  final VoidCallback onPromptLogin;
   final Future<void> Function() onNewsClosed;
 
   const _ListView({
     required this.news,
     required this.favoriteIds,
+    required this.isAuthenticated,
     required this.onToggleFavorite,
+    required this.onPromptLogin,
     required this.onNewsClosed,
   });
 
   @override
   Widget build(BuildContext context) {
-    final user = context.read<AuthProvider>().user;
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: news.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, i) => NewsCard(
-        news: news[i],
-        isFavorite: favoriteIds.contains(news[i].id),
-        onFavoriteToggle: user != null ? () => onToggleFavorite(news[i].id) : null,
-        onTap: () {
-          context.push('/news/${news[i].id}').then((_) => onNewsClosed());
-        },
-      ),
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.all(16),
+          sliver: SliverList.separated(
+            itemCount: news.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, i) => NewsCard(
+              news: news[i],
+              isFavorite: favoriteIds.contains(news[i].id),
+              favoriteLocked: !isAuthenticated,
+              onFavoriteToggle: isAuthenticated ? () => onToggleFavorite(news[i].id) : onPromptLogin,
+              onTap: () {
+                context.push('/news/${news[i].id}').then((_) => onNewsClosed());
+              },
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(child: AppFooter()),
+      ],
     );
   }
 }
@@ -168,36 +206,49 @@ class _ListView extends StatelessWidget {
 class _GridView extends StatelessWidget {
   final List<News> news;
   final Set<int> favoriteIds;
+  final bool isAuthenticated;
   final void Function(int) onToggleFavorite;
+  final VoidCallback onPromptLogin;
   final Future<void> Function() onNewsClosed;
 
   const _GridView({
     required this.news,
     required this.favoriteIds,
+    required this.isAuthenticated,
     required this.onToggleFavorite,
+    required this.onPromptLogin,
     required this.onNewsClosed,
   });
 
   @override
   Widget build(BuildContext context) {
-    final user = context.read<AuthProvider>().user;
-    return GridView.builder(
-      padding: const EdgeInsets.all(20),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.85,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-      ),
-      itemCount: news.length,
-      itemBuilder: (context, i) => NewsCard(
-        news: news[i],
-        isFavorite: favoriteIds.contains(news[i].id),
-        onFavoriteToggle: user != null ? () => onToggleFavorite(news[i].id) : null,
-        onTap: () {
-          context.push('/news/${news[i].id}').then((_) => onNewsClosed());
-        },
-      ),
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.all(20),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.85,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, i) => NewsCard(
+                news: news[i],
+                isFavorite: favoriteIds.contains(news[i].id),
+                favoriteLocked: !isAuthenticated,
+                onFavoriteToggle: isAuthenticated ? () => onToggleFavorite(news[i].id) : onPromptLogin,
+                onTap: () {
+                  context.push('/news/${news[i].id}').then((_) => onNewsClosed());
+                },
+              ),
+              childCount: news.length,
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(child: AppFooter()),
+      ],
     );
   }
 }

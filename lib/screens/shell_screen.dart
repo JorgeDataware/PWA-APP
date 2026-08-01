@@ -15,6 +15,14 @@ class AppShell extends StatelessWidget {
     if (context.isWearable) {
       return _WearableShell(child: navigationShell);
     }
+    final isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
+    if (!isAuthenticated) {
+      // Guest browsing: only the News branch is reachable (router redirect
+      // sends any other branch to /login), so nav chrome for
+      // Favorites/Profile/Admin would be misleading here. The news screens
+      // provide their own AppBar with a "Iniciar sesión" action instead.
+      return navigationShell;
+    }
     if (context.isDesktop) {
       return _DesktopShell(navigationShell: navigationShell);
     }

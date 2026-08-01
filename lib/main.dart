@@ -17,6 +17,9 @@ import 'screens/web/admin/admin_news_screen.dart';
 import 'screens/web/admin/admin_users_screen.dart';
 import 'screens/wearable/wearable_news_list_screen.dart';
 import 'screens/wearable/wearable_news_detail_screen.dart';
+import 'screens/legal/about_screen.dart';
+import 'screens/legal/privacy_policy_screen.dart';
+import 'screens/legal/contact_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -69,8 +72,16 @@ class _TechNewsAppState extends State<TechNewsApp> {
         final authenticated = auth.isAuthenticated;
         final path = state.matchedLocation;
         final isAuthPath = path == '/login' || path == '/register';
+        // Publicly browsable without an account: reading news and the
+        // informational/legal pages. Favorites, profile and admin still
+        // require a session.
+        final isPublicPath = path.startsWith('/news') ||
+            path == '/about' ||
+            path == '/privacy' ||
+            path == '/contact' ||
+            isAuthPath;
 
-        if (!authenticated && !isAuthPath) return '/login';
+        if (!authenticated && !isPublicPath) return '/login';
         if (authenticated && isAuthPath) return '/news';
         return null;
       },
@@ -82,6 +93,18 @@ class _TechNewsAppState extends State<TechNewsApp> {
         GoRoute(
           path: '/register',
           builder: (context, state) => const RegisterScreen(),
+        ),
+        GoRoute(
+          path: '/about',
+          builder: (context, state) => const AboutScreen(),
+        ),
+        GoRoute(
+          path: '/privacy',
+          builder: (context, state) => const PrivacyPolicyScreen(),
+        ),
+        GoRoute(
+          path: '/contact',
+          builder: (context, state) => const ContactScreen(),
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, shell) => AppShell(navigationShell: shell),

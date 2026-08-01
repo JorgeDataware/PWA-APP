@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
 import '../../models/news.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/news_service.dart';
 import '../../services/favorites_service.dart';
+import '../../widgets/app_footer.dart';
 
 class NewsDetailScreen extends StatefulWidget {
   final int newsId;
@@ -28,19 +31,31 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
   }
 
   Future<void> _load() async {
+    final isAuthenticated = context.read<AuthProvider>().isAuthenticated;
     try {
       final news = await NewsService.getWebNewsById(widget.newsId);
-      final favorites = await FavoritesService.getFavorites();
+      final isFavorite = isAuthenticated
+          ? (await FavoritesService.getFavorites()).any((f) => f.newsId == widget.newsId)
+          : false;
       if (mounted) {
         setState(() {
           _news = news;
-          _isFavorite = favorites.any((f) => f.newsId == widget.newsId);
+          _isFavorite = isFavorite;
           _loading = false;
         });
       }
     } catch (e) {
       if (mounted) setState(() { _error = e.toString(); _loading = false; });
     }
+  }
+
+  void _promptLogin() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Inicia sesión para guardar noticias en favoritos'),
+        action: SnackBarAction(label: 'Iniciar sesión', onPressed: () => context.go('/login')),
+      ),
+    );
   }
 
   Future<void> _toggleFavorite() async {
@@ -66,6 +81,7 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final isDesktop = context.isDesktop;
+    final isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
 
     return Scaffold(
       appBar: AppBar(
@@ -75,6 +91,11 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
         ),
         title: const Text('Noticia'),
         actions: [
+          if (!isAuthenticated)
+            TextButton(
+              onPressed: () => context.go('/login'),
+              child: const Text('Iniciar sesión'),
+            ),
           if (_news != null)
             _favoriteLoading
                 ? const Padding(
@@ -87,11 +108,15 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
                   )
                 : IconButton(
                     icon: Icon(
-                      _isFavorite ? Icons.bookmark : Icons.bookmark_border,
+                      isAuthenticated
+                          ? (_isFavorite ? Icons.bookmark : Icons.bookmark_border)
+                          : Icons.bookmark_outline,
                       color: _isFavorite ? AppTheme.accent : null,
                     ),
-                    tooltip: _isFavorite ? 'Quitar favorito' : 'Agregar a favoritos',
-                    onPressed: _toggleFavorite,
+                    tooltip: isAuthenticated
+                        ? (_isFavorite ? 'Quitar favorito' : 'Agregar a favoritos')
+                        : 'Inicia sesión para guardar',
+                    onPressed: isAuthenticated ? _toggleFavorite : _promptLogin,
                   ),
         ],
       ),
@@ -128,10 +153,12 @@ class _ArticleView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: isDesktop ? 820 : double.infinity),
-          child: Column(
+      child: Column(
+        children: [
+          Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: isDesktop ? 820 : double.infinity),
+              child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (news.imageUrl != null)
@@ -230,9 +257,12 @@ class _ArticleView extends StatelessWidget {
                   ],
                 ),
               ),
-            ],
+                ],
+              ),
+            ),
           ),
-        ),
+          const AppFooter(),
+        ],
       ),
     );
   }

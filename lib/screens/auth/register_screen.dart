@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/app_footer.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -53,13 +54,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/login'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/news'),
         ),
         title: const Text('Crear cuenta'),
       ),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Center(
+            child: Padding(
             padding: const EdgeInsets.all(32),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 420),
@@ -199,10 +203,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ],
                     ),
+                    TextButton(
+                      onPressed: () => context.go('/news'),
+                      child: const Text('Explorar noticias sin cuenta'),
+                    ),
                   ],
                 ),
               ),
             ),
+            ),
+              ),
+              const AppFooter(),
+            ],
           ),
         ),
       ),

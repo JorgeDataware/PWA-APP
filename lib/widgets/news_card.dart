@@ -9,12 +9,18 @@ class NewsCard extends StatelessWidget {
   final bool isFavorite;
   final VoidCallback? onFavoriteToggle;
 
+  /// True when the viewer isn't authenticated: the bookmark icon is still
+  /// shown (so guests discover the feature) but reads as disabled, and
+  /// [onFavoriteToggle] is expected to prompt login rather than toggle.
+  final bool favoriteLocked;
+
   const NewsCard({
     super.key,
     required this.news,
     required this.onTap,
     this.isFavorite = false,
     this.onFavoriteToggle,
+    this.favoriteLocked = false,
   });
 
   @override
@@ -50,9 +56,12 @@ class NewsCard extends StatelessWidget {
                       if (onFavoriteToggle != null)
                         IconButton(
                           icon: Icon(
-                            isFavorite ? Icons.bookmark : Icons.bookmark_border,
+                            favoriteLocked
+                                ? Icons.bookmark_outline
+                                : (isFavorite ? Icons.bookmark : Icons.bookmark_border),
                             color: isFavorite ? AppTheme.accent : AppTheme.textSecondary,
                           ),
+                          tooltip: favoriteLocked ? 'Inicia sesión para guardar' : null,
                           onPressed: onFavoriteToggle,
                         ),
                     ],
