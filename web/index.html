@@ -27,9 +27,17 @@
     itself, images from https (news article thumbnails, an external CDN) plus
     data: URIs (Flutter's inlined assets), and API/XHR calls to https only.
     See docs/seguridad/checklist-seguridad-pwa.md for the full rationale.
+
+    manifest-src / worker-src / 'wasm-unsafe-eval' are required by the
+    CanvasKit renderer: it loads canvaskit.js as a same-origin dynamic
+    import, instantiates it as WebAssembly (needs 'wasm-unsafe-eval'
+    specifically — 'unsafe-eval' alone does not cover Wasm in current
+    Chrome), and spawns worker threads from blob: URLs. Without these the
+    engine silently fails to initialize and the app never paints past the
+    background color — no console error beyond the CSP violation itself.
   -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' data:; connect-src 'self' https:; media-src 'self' https: data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none';">
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' data:; connect-src 'self' https: blob:; media-src 'self' https: data:; manifest-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
 
 
   <!-- iOS / Apple Watch meta tags -->
