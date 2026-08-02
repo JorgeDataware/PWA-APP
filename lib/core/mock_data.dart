@@ -209,6 +209,19 @@ class MockData {
     return copy;
   }
 
+  static Future<List<News>> searchNews(String query) async {
+    await _delay();
+    final needle = query.trim().toLowerCase();
+    if (needle.isEmpty) return [];
+    final matches = _news
+        .where((n) =>
+            n.title.toLowerCase().contains(needle) ||
+            (n.content?.toLowerCase().contains(needle) ?? false))
+        .toList()
+      ..sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
+    return matches;
+  }
+
   static Future<News> newsById(int id) async {
     await _delay();
     return _news.firstWhere(

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -23,10 +24,60 @@ class _NewsListScreenState extends State<NewsListScreen> {
   bool _loading = true;
   String? _error;
 
+  // Internal search (own API, not a third-party search engine) — see
+  // GET /api/web/news/search. Debounced so it doesn't fire on every
+  // keystroke.
+  final _searchController = TextEditingController();
+  bool _searching = false;
+  bool _searchLoading = false;
+  List<News>? _searchResults;
+  Timer? _searchDebounce;
+
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _startSearch() {
+    setState(() => _searching = true);
+  }
+
+  void _stopSearch() {
+    _searchDebounce?.cancel();
+    _searchController.clear();
+    setState(() {
+      _searching = false;
+      _searchResults = null;
+      _searchLoading = false;
+    });
+  }
+
+  void _onSearchChanged(String query) {
+    _searchDebounce?.cancel();
+    if (query.trim().isEmpty) {
+      setState(() => _searchResults = null);
+      return;
+    }
+    setState(() => _searchLoading = true);
+    _searchDebounce = Timer(const Duration(milliseconds: 400), () async {
+      try {
+        final results = await NewsService.searchNews(query);
+        if (mounted) setState(() { _searchResults = results; _searchLoading = false; });
+      } catch (e) {
+        if (mounted) {
+          setState(() => _searchLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+        }
+      }
+    });
   }
 
   Future<void> _load() async {
@@ -95,67 +146,101 @@ class _NewsListScreenState extends State<NewsListScreen> {
     final crossAxisCount = isDesktop ? 2 : 1;
     final isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
 
+    final isSearchMode = _searching && _searchController.text.trim().isNotEmpty;
+    final displayedNews = isSearchMode ? _searchResults : _news;
+
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            const Icon(Icons.rss_feed_rounded, color: AppTheme.primary, size: 22),
-            const SizedBox(width: 8),
-            const Text('TechNews'),
-          ],
-        ),
-        actions: [
-          if (!isAuthenticated) ...[
-            TextButton(
-              onPressed: () => context.go('/login'),
-              child: const Text('Iniciar sesión'),
-            ),
-            if (isDesktop)
-              OutlinedButton(
-                onPressed: () => context.go('/register'),
-                child: const Text('Registrarse'),
+        title: _searching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                onChanged: _onSearchChanged,
+                decoration: const InputDecoration(
+                  hintText: 'Buscar noticias…',
+                  border: InputBorder.none,
+                ),
+                style: const TextStyle(color: AppTheme.textPrimary, fontSize: 17),
+              )
+            : Row(
+                children: [
+                  const Icon(Icons.rss_feed_rounded, color: AppTheme.primary, size: 22),
+                  const SizedBox(width: 8),
+                  const Text('TechNews'),
+                ],
               ),
-            const SizedBox(width: 8),
+        leading: _searching
+            ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: _stopSearch)
+            : null,
+        actions: [
+          if (_searching)
+            IconButton(
+              icon: const Icon(Icons.clear),
+              tooltip: 'Cancelar búsqueda',
+              onPressed: _stopSearch,
+            )
+          else ...[
+            IconButton(
+              icon: const Icon(Icons.search),
+              tooltip: 'Buscar',
+              onPressed: _startSearch,
+            ),
+            if (!isAuthenticated) ...[
+              TextButton(
+                onPressed: () => context.go('/login'),
+                child: const Text('Iniciar sesión'),
+              ),
+              if (isDesktop)
+                OutlinedButton(
+                  onPressed: () => context.go('/register'),
+                  child: const Text('Registrarse'),
+                ),
+              const SizedBox(width: 8),
+            ],
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Actualizar',
+              onPressed: () {
+                setState(() { _loading = true; _error = null; _news = null; });
+                _load();
+              },
+            ),
           ],
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Actualizar',
-            onPressed: () {
-              setState(() { _loading = true; _error = null; _news = null; });
-              _load();
-            },
-          ),
         ],
       ),
-      body: _loading
+      body: isSearchMode && _searchLoading && (_searchResults == null)
           ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? _ErrorView(error: _error!, onRetry: () {
-                  setState(() { _loading = true; _error = null; });
-                  _load();
-                })
-              : _news == null || _news!.isEmpty
-                  ? const _EmptyView()
-                  : RefreshIndicator(
-                      onRefresh: _load,
-                      child: crossAxisCount == 1
-                          ? _ListView(
-                              news: _news!,
-                              favoriteIds: _favoriteIds,
-                              isAuthenticated: isAuthenticated,
-                              onToggleFavorite: _toggleFavorite,
-                              onPromptLogin: _promptLogin,
-                              onNewsClosed: _load,
-                            )
-                          : _GridView(
-                              news: _news!,
-                              favoriteIds: _favoriteIds,
-                              isAuthenticated: isAuthenticated,
-                              onToggleFavorite: _toggleFavorite,
-                              onPromptLogin: _promptLogin,
-                              onNewsClosed: _load,
+          : isSearchMode && (_searchResults?.isEmpty ?? false)
+              ? _EmptyView(message: 'Sin resultados para "${_searchController.text.trim()}"')
+              : _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                      ? _ErrorView(error: _error!, onRetry: () {
+                          setState(() { _loading = true; _error = null; });
+                          _load();
+                        })
+                      : displayedNews == null || displayedNews.isEmpty
+                          ? const _EmptyView()
+                          : RefreshIndicator(
+                              onRefresh: isSearchMode ? () async {} : _load,
+                              child: crossAxisCount == 1
+                                  ? _ListView(
+                                      news: displayedNews,
+                                      favoriteIds: _favoriteIds,
+                                      isAuthenticated: isAuthenticated,
+                                      onToggleFavorite: _toggleFavorite,
+                                      onPromptLogin: _promptLogin,
+                                      onNewsClosed: _load,
+                                    )
+                                  : _GridView(
+                                      news: displayedNews,
+                                      favoriteIds: _favoriteIds,
+                                      isAuthenticated: isAuthenticated,
+                                      onToggleFavorite: _toggleFavorite,
+                                      onPromptLogin: _promptLogin,
+                                      onNewsClosed: _load,
+                                    ),
                             ),
-                    ),
     );
   }
 }
@@ -297,19 +382,21 @@ class _ErrorView extends StatelessWidget {
 }
 
 class _EmptyView extends StatelessWidget {
-  const _EmptyView();
+  final String message;
+  const _EmptyView({this.message = 'No hay noticias disponibles'});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.newspaper, color: AppTheme.textSecondary, size: 64),
-          SizedBox(height: 16),
+          const Icon(Icons.newspaper, color: AppTheme.textSecondary, size: 64),
+          const SizedBox(height: 16),
           Text(
-            'No hay noticias disponibles',
-            style: TextStyle(color: AppTheme.textSecondary, fontSize: 16),
+            message,
+            style: const TextStyle(color: AppTheme.textSecondary, fontSize: 16),
+            textAlign: TextAlign.center,
           ),
         ],
       ),

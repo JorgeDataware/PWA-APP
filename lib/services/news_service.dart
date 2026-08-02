@@ -10,6 +10,14 @@ class NewsService {
     return data.map((e) => News.fromJson(e as Map<String, dynamic>)).toList();
   }
 
+  static Future<List<News>> searchNews(String query) async {
+    if (query.trim().isEmpty) return [];
+    if (AppConstants.useMockData) return MockData.searchNews(query);
+    final q = Uri.encodeQueryComponent(query.trim());
+    final data = await ApiClient.get('/api/web/news/search?q=$q') as List;
+    return data.map((e) => News.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
   static Future<News> getWebNewsById(int id) async {
     if (AppConstants.useMockData) return MockData.newsById(id);
     final data = await ApiClient.get('/api/web/news/$id');

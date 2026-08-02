@@ -4,6 +4,7 @@ import '../../core/theme.dart';
 import '../../models/news.dart';
 import '../../services/news_service.dart';
 import '../../widgets/news_card.dart';
+import '../../widgets/rounded_scroll_indicator.dart';
 
 class WearableNewsListScreen extends StatefulWidget {
   const WearableNewsListScreen({super.key});
@@ -77,25 +78,45 @@ class _WearableNewsListScreenState extends State<WearableNewsListScreen> {
   }
 }
 
-class _NewsList extends StatelessWidget {
+class _NewsList extends StatefulWidget {
   final List<News> news;
   final Future<void> Function() onNewsClosed;
 
   const _NewsList({required this.news, required this.onNewsClosed});
 
   @override
+  State<_NewsList> createState() => _NewsListState();
+}
+
+class _NewsListState extends State<_NewsList> {
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      // Extra clearance prevents content from entering the curved screen edges.
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-      itemCount: news.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
-      itemBuilder: (context, i) => WearableNewsCard(
-        news: news[i],
-        onTap: () {
-          context.push('/news/${news[i].id}').then((_) => onNewsClosed());
-        },
-      ),
+    return Stack(
+      children: [
+        ListView.separated(
+          controller: _scrollController,
+          // Extra clearance prevents content from entering the curved screen
+          // edges; a bit more on the right to clear the arc scroll indicator.
+          padding: const EdgeInsets.fromLTRB(24, 12, 28, 24),
+          itemCount: widget.news.length,
+          separatorBuilder: (_, __) => const Divider(height: 1),
+          itemBuilder: (context, i) => WearableNewsCard(
+            news: widget.news[i],
+            onTap: () {
+              context.push('/news/${widget.news[i].id}').then((_) => widget.onNewsClosed());
+            },
+          ),
+        ),
+        RoundedScrollIndicator(controller: _scrollController),
+      ],
     );
   }
 }
