@@ -183,7 +183,7 @@ class _NavItem extends StatelessWidget {
           ),
         ),
         selected: selected,
-        selectedTileColor: AppTheme.primary.withOpacity(0.1),
+        selectedTileColor: AppTheme.primary.withValues(alpha: 0.1),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         dense: true,
         onTap: onTap,

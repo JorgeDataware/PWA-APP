@@ -1,5 +1,7 @@
 # TechNews PWA
 
+[![CI/CD](https://github.com/JorgeDataware/PWA-APP/actions/workflows/ci.yml/badge.svg)](https://github.com/JorgeDataware/PWA-APP/actions/workflows/ci.yml)
+
 Blog de noticias tecnológicas construido con **Flutter**, diseñado para correr en web y en dispositivos wearable (smartwatch). Consume una API REST con autenticación JWT y soporta dos roles de usuario: Admin y User.
 
 ---
@@ -101,6 +103,40 @@ class AppConstants {
   static const String baseUrl = 'http://localhost:5273'; // cambia aquí
 }
 ```
+
+### Ejecutar pruebas
+
+```bash
+flutter test
+```
+
+Ver [docs/pruebas/plan-de-pruebas.md](docs/pruebas/plan-de-pruebas.md) para el detalle de casos y el reporte de resultados.
+
+---
+
+## CI/CD
+
+En cada push a `main` (y en cada Pull Request), [`.github/workflows/ci.yml`](.github/workflows/ci.yml) corre automáticamente:
+
+1. `flutter analyze` — falla el pipeline si hay cualquier problema de lint (no continúa al build con código con issues).
+2. `flutter test` — corre la suite completa (ver [plan de pruebas](docs/pruebas/plan-de-pruebas.md)).
+3. `flutter build web --release` — build de producción.
+4. Si los tres pasos anteriores pasan **y** el push fue a `main`: despliegue automático a Vercel (`vercel --prod`) usando el build recién generado.
+
+### Configurar el despliegue automático (una sola vez)
+
+El deploy usa la [Vercel CLI](https://vercel.com/docs/cli) vía GitHub Actions. Necesitas agregar 3 secretos en
+**GitHub → Settings → Secrets and variables → Actions**:
+
+| Secreto | Cómo obtenerlo |
+|---|---|
+| `VERCEL_TOKEN` | [vercel.com/account/tokens](https://vercel.com/account/tokens) → Create Token |
+| `VERCEL_ORG_ID` | Corre `vercel link` dentro de `build/web/` (o cualquier carpeta ya vinculada al proyecto) y revisa `.vercel/project.json` |
+| `VERCEL_PROJECT_ID` | Igual que arriba, en el mismo `.vercel/project.json` |
+
+Sin estos secretos configurados, el job `deploy` fallará (los jobs `lint-build-test` seguirán funcionando
+normalmente). El primer despliegue manual que ya hiciste con `vercel --prod` habrá creado el proyecto en tu
+cuenta de Vercel — solo falta vincular esas credenciales para que Actions pueda desplegar en tu nombre.
 
 ---
 

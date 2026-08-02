@@ -16,6 +16,15 @@ class ApiException implements Exception {
 class ApiClient {
   static const _tokenKey = 'auth_token';
 
+  /// Applied to every request so a slow/unresponsive backend fails fast
+  /// with a clear error instead of leaving the UI stuck on a loading
+  /// spinner indefinitely (e.g. a Render free-tier cold start that never
+  /// completes, or a network with no connectivity at all).
+  static const _timeout = Duration(seconds: 15);
+
+  static const _timeoutMessage =
+      'El servidor tardó demasiado en responder. Intenta de nuevo.';
+
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_tokenKey);
@@ -47,7 +56,9 @@ class ApiClient {
   static Uri _uri(String path) => Uri.parse('${AppConstants.baseUrl}$path');
 
   static Future<dynamic> get(String path) async {
-    final res = await http.get(_uri(path), headers: await _headers());
+    final res = await http
+        .get(_uri(path), headers: await _headers())
+        .timeout(_timeout, onTimeout: _throwTimeout);
     return _handle(res);
   }
 
@@ -56,36 +67,49 @@ class ApiClient {
     Map<String, dynamic> body, {
     bool auth = true,
   }) async {
-    final res = await http.post(
-      _uri(path),
-      headers: await _headers(auth: auth, jsonContent: true),
-      body: jsonEncode(body),
-    );
+    final res = await http
+        .post(
+          _uri(path),
+          headers: await _headers(auth: auth, jsonContent: true),
+          body: jsonEncode(body),
+        )
+        .timeout(_timeout, onTimeout: _throwTimeout);
     return _handle(res);
   }
 
   static Future<dynamic> put(String path, Map<String, dynamic> body) async {
-    final res = await http.put(
-      _uri(path),
-      headers: await _headers(jsonContent: true),
-      body: jsonEncode(body),
-    );
+    final res = await http
+        .put(
+          _uri(path),
+          headers: await _headers(jsonContent: true),
+          body: jsonEncode(body),
+        )
+        .timeout(_timeout, onTimeout: _throwTimeout);
     return _handle(res);
   }
 
   static Future<dynamic> patch(String path, Map<String, dynamic> body) async {
-    final res = await http.patch(
-      _uri(path),
-      headers: await _headers(jsonContent: true),
-      body: jsonEncode(body),
-    );
+    final res = await http
+        .patch(
+          _uri(path),
+          headers: await _headers(jsonContent: true),
+          body: jsonEncode(body),
+        )
+        .timeout(_timeout, onTimeout: _throwTimeout);
     return _handle(res);
   }
 
   static Future<void> delete(String path) async {
-    final res = await http.delete(_uri(path), headers: await _headers());
+    final res = await http
+        .delete(_uri(path), headers: await _headers())
+        .timeout(_timeout, onTimeout: _throwTimeout);
     _handleNoContent(res);
   }
+
+  static Never _throwTimeout() => throw const ApiException(
+        statusCode: 408,
+        message: _timeoutMessage,
+      );
 
   static dynamic _handle(http.Response res) {
     if (res.statusCode >= 200 && res.statusCode < 300) {

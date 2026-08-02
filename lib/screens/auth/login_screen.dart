@@ -138,9 +138,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: AppTheme.error.withOpacity(0.1),
+                          color: AppTheme.error.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppTheme.error.withOpacity(0.4)),
+                          border: Border.all(color: AppTheme.error.withValues(alpha: 0.4)),
                         ),
                         child: Text(
                           _error!,
@@ -168,10 +168,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: AppTheme.primary.withOpacity(0.08),
+                          color: AppTheme.primary.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: AppTheme.primary.withOpacity(0.25),
+                            color: AppTheme.primary.withValues(alpha: 0.25),
                           ),
                         ),
                         child: Text(
@@ -187,8 +187,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                     if (!wearable) ...[
                       const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           const Text(
                             '¿No tienes cuenta? ',

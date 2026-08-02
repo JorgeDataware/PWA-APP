@@ -277,9 +277,9 @@ class _NewsFormState extends State<_NewsForm> {
               padding: const EdgeInsets.all(10),
               margin: const EdgeInsets.only(bottom: 12),
               decoration: BoxDecoration(
-                color: AppTheme.error.withOpacity(0.1),
+                color: AppTheme.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppTheme.error.withOpacity(0.4)),
+                border: Border.all(color: AppTheme.error.withValues(alpha: 0.4)),
               ),
               child: Text(_error!, style: const TextStyle(color: AppTheme.error, fontSize: 13)),
             ),

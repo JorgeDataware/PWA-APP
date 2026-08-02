@@ -127,7 +127,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 CircleAvatar(
                   radius: 44,
-                  backgroundColor: AppTheme.primary.withOpacity(0.15),
+                  backgroundColor: AppTheme.primary.withValues(alpha: 0.15),
                   child: Text(
                     auth.user?.fullName.isNotEmpty == true
                         ? auth.user!.fullName[0].toUpperCase()
@@ -153,13 +153,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
                     color: auth.user?.isAdmin == true
-                        ? AppTheme.primary.withOpacity(0.15)
-                        : AppTheme.accent.withOpacity(0.1),
+                        ? AppTheme.primary.withValues(alpha: 0.15)
+                        : AppTheme.accent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: auth.user?.isAdmin == true
-                          ? AppTheme.primary.withOpacity(0.4)
-                          : AppTheme.accent.withOpacity(0.3),
+                          ? AppTheme.primary.withValues(alpha: 0.4)
+                          : AppTheme.accent.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Text(
@@ -186,9 +186,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.success.withOpacity(0.1),
+                      color: AppTheme.success.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppTheme.success.withOpacity(0.4)),
+                      border: Border.all(color: AppTheme.success.withValues(alpha: 0.4)),
                     ),
                     child: Text(
                       _success!,
@@ -201,9 +201,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.error.withOpacity(0.1),
+                      color: AppTheme.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppTheme.error.withOpacity(0.4)),
+                      border: Border.all(color: AppTheme.error.withValues(alpha: 0.4)),
                     ),
                     child: Text(
                       _error!,
