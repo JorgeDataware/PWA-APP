@@ -82,16 +82,36 @@ class _ArcPainter extends CustomPainter {
 
   _ArcPainter({required this.progress, required this.thumbFraction});
 
+  // How far the arc's apex dips in from the right edge, in pixels — NOT a
+  // fraction of screen size, so it stays a thin sliver regardless of the
+  // device's resolution.
+  static const double _depth = 6.0;
+
   @override
   void paint(Canvas canvas, Size size) {
-    final radius = size.height / 2;
-    final center = Offset(size.width - 2, size.height / 2);
+    final midY = size.height / 2;
+    // Vertical span of the track. Capped in absolute pixels (not a fraction
+    // of the full body height) so the indicator reads as a short accent
+    // near the middle of the screen, the way Wear OS draws it, rather than
+    // stretching edge-to-edge.
+    final trackHeight = math.min(size.height * 0.5, 140.0);
+    final halfChord = trackHeight / 2;
+
+    // Circle-through-a-chord ("sagitta") geometry: solving for the radius
+    // that makes a circle bulge inward by exactly `_depth` px at its apex
+    // while its two ends (halfChord above/below the apex) sit flush with
+    // the right edge. This is what keeps the curve a thin accent hugging
+    // the bezel instead of a huge arc slicing across the content — the
+    // previous version used `radius = size.height / 2`, which for a
+    // reasonably tall screen produces a circle wide enough that its arc
+    // cuts diagonally across article titles.
+    final radius = (halfChord * halfChord + _depth * _depth) / (2 * _depth);
+    final center = Offset(size.width - _depth + radius, midY);
     final rect = Rect.fromCircle(center: center, radius: radius);
 
-    // Total arc spans 120° along the right edge (60° above and below
-    // center), matching the visible curvature of a round watch face.
-    const totalSweep = math.pi * 2 / 3;
-    const startAngle = -math.pi / 2 - totalSweep / 2;
+    final halfSweep = math.asin((halfChord / radius).clamp(-1.0, 1.0));
+    final startAngle = math.pi - halfSweep;
+    final totalSweep = 2 * halfSweep;
 
     final trackPaint = Paint()
       ..color = AppTheme.divider
