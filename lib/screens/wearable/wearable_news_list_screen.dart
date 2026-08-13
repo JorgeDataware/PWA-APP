@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../../core/theme.dart';
 import '../../models/news.dart';
 import '../../services/news_service.dart';
 import '../../widgets/news_card.dart';
 import '../../widgets/rounded_scroll_indicator.dart';
+import '../web/wearable_preview_screen.dart';
 
 class WearableNewsListScreen extends StatefulWidget {
   const WearableNewsListScreen({super.key});
@@ -111,7 +111,8 @@ class _NewsListState extends State<_NewsList> {
           itemBuilder: (context, i) => WearableNewsCard(
             news: widget.news[i],
             onTap: () {
-              context.push('/news/${widget.news[i].id}').then((_) => widget.onNewsClosed());
+              openWearableNewsDetail(context, widget.news[i].id)
+                  .then((_) => widget.onNewsClosed());
             },
           ),
         ),

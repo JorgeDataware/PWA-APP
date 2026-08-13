@@ -13,8 +13,10 @@ import 'screens/web/news_list_screen.dart';
 import 'screens/web/news_detail_screen.dart';
 import 'screens/web/favorites_screen.dart';
 import 'screens/web/profile_screen.dart';
+import 'screens/web/admin/admin_dashboard_screen.dart';
 import 'screens/web/admin/admin_news_screen.dart';
 import 'screens/web/admin/admin_users_screen.dart';
+import 'screens/web/wearable_preview_screen.dart';
 import 'screens/wearable/wearable_news_list_screen.dart';
 import 'screens/wearable/wearable_news_detail_screen.dart';
 import 'screens/legal/about_screen.dart';
@@ -76,6 +78,7 @@ class _TechNewsAppState extends State<TechNewsApp> {
         // informational/legal pages. Favorites, profile and admin still
         // require a session.
         final isPublicPath = path.startsWith('/news') ||
+            path == '/wearable' ||
             path == '/about' ||
             path == '/privacy' ||
             path == '/contact' ||
@@ -93,6 +96,14 @@ class _TechNewsAppState extends State<TechNewsApp> {
         GoRoute(
           path: '/register',
           builder: (context, state) => const RegisterScreen(),
+        ),
+        // Entry point from the web site into the wearable experience: the
+        // real watch UI rendered inside a smartwatch frame. Outside the
+        // shell route so it takes over the full window, and public so it
+        // can be shown without an account.
+        GoRoute(
+          path: '/wearable',
+          builder: (context, state) => const WearablePreviewScreen(),
         ),
         GoRoute(
           path: '/about',
@@ -143,6 +154,17 @@ class _TechNewsAppState extends State<TechNewsApp> {
                 GoRoute(
                   path: '/profile',
                   builder: (context, state) => const ProfileScreen(),
+                ),
+              ],
+            ),
+            // Admin branches. Their order must stay in sync with the admin
+            // tabs in shell_screen.dart's _buildTabs — the shell maps tab
+            // index to branch index.
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/admin/dashboard',
+                  builder: (context, state) => const AdminDashboardScreen(),
                 ),
               ],
             ),

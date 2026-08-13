@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
 import '../../models/news.dart';
 import '../../services/news_service.dart';
+import '../web/wearable_preview_screen.dart';
 
 class WearableNewsDetailScreen extends StatefulWidget {
   final int newsId;
@@ -41,7 +41,7 @@ class _WearableNewsDetailScreenState extends State<WearableNewsDetailScreen> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, size: 18),
-          onPressed: () => context.pop(),
+          onPressed: () => closeWearableNewsDetail(context),
         ),
         title: const Text('Noticia', style: TextStyle(fontSize: 14)),
       ),

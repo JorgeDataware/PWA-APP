@@ -213,6 +213,8 @@ List<_Tab> _buildTabs(bool isAdmin) {
     const _Tab(label: 'Favoritos', iconData: Icons.bookmark_border, activeIconData: Icons.bookmark),
     const _Tab(label: 'Mi perfil', iconData: Icons.person_outline, activeIconData: Icons.person),
     if (isAdmin)
+      const _Tab(label: 'Panel', iconData: Icons.dashboard_outlined, activeIconData: Icons.dashboard),
+    if (isAdmin)
       const _Tab(label: 'Noticias (Admin)', iconData: Icons.edit_note_outlined, activeIconData: Icons.edit_note),
     if (isAdmin)
       const _Tab(label: 'Usuarios', iconData: Icons.people_outline, activeIconData: Icons.people),

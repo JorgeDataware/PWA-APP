@@ -44,6 +44,7 @@ class AppFooter extends StatelessWidget {
               _FooterLink(label: 'Acerca de', onTap: () => context.push('/about')),
               _FooterLink(label: 'Aviso de privacidad', onTap: () => context.push('/privacy')),
               _FooterLink(label: 'Contacto', onTap: () => context.push('/contact')),
+              _FooterLink(label: 'Ver en smartwatch', onTap: () => context.push('/wearable')),
             ],
           ),
           const SizedBox(height: 14),

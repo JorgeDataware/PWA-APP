@@ -185,6 +185,11 @@ class _NewsListScreenState extends State<NewsListScreen> {
               tooltip: 'Buscar',
               onPressed: _startSearch,
             ),
+            IconButton(
+              icon: const Icon(Icons.watch),
+              tooltip: 'Ver en smartwatch',
+              onPressed: () => context.push('/wearable'),
+            ),
             if (!isAuthenticated) ...[
               TextButton(
                 onPressed: () => context.go('/login'),
