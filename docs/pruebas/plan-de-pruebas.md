@@ -7,8 +7,9 @@ cd PWA-APP
 flutter test
 ```
 
-Última ejecución: **26/26 pruebas pasan** (`flutter test`, ver [reporte](#reporte-de-resultados) abajo).
-Duración total: ~2 segundos.
+Última ejecución: **52/52 pruebas pasan** (`flutter test`, ver [reporte](#reporte-de-resultados) abajo).
+Duración total: ~4 segundos. Versión probada: **1.4.0** (ver
+[versionado-y-release.md](../versionado-y-release.md)).
 
 ## Alcance
 
@@ -39,23 +40,39 @@ nota en `test/widget_test.dart` y el hallazgo P-01 más abajo.
 | 9 | Renderizar `LoginScreen` | Aparece el enlace "Explorar noticias sin cuenta" (navegación de invitado) | ✅ Pasa | `test/widget/login_screen_test.dart` |
 | 10 | Renderizar `AppFooter` | Muestra los tres enlaces legales (Acerca de / Aviso de privacidad / Contacto), los íconos sociales y la línea de copyright | ✅ Pasa | `test/widget_test.dart` |
 | 11 | Cargar una `NewsCard` con una URL de imagen inválida | Se muestra el ícono de imagen rota (`errorBuilder`) en vez de romper el árbol de widgets | ✅ Pasa | `test/widget/news_card_test.dart` |
+| 12 | Buscar por título y por contenido, sin distinguir mayúsculas, y con una consulta vacía | Devuelve coincidencias ordenadas por fecha descendente; lista vacía si la consulta está vacía o no hay coincidencias | ✅ Pasa | `test/unit/search_test.dart` |
+| 13 | Calcular las ventanas de 7 y 30 días del panel con un `now` fijo | Sólo cuenta las noticias dentro de cada ventana | ✅ Pasa | `test/unit/dashboard_metrics_test.dart` |
+| 14 | Agrupar publicaciones por mes cuando hay meses sin noticias y noticias fuera de la ventana | Devuelve 6 cubetas, la más antigua primero, con `0` en los meses vacíos y descartando lo anterior a la ventana | ✅ Pasa | `test/unit/dashboard_metrics_test.dart` |
+| 15 | Ordenar el ranking de autores con un empate en número de artículos | Ordena por cantidad descendente y desempata alfabéticamente, de forma estable entre recargas | ✅ Pasa | `test/unit/dashboard_metrics_test.dart` |
+| 16 | Pedir las últimas publicaciones del panel | Devuelve las más recientes primero, respeta el límite y **no** modifica la lista original | ✅ Pasa | `test/unit/dashboard_metrics_test.dart` |
+| 17 | Separar usuarios activos, inactivos y por rol | `activeUsers + inactiveUsers = totalUsers`; el conteo por rol es independiente del estado activo | ✅ Pasa | `test/unit/dashboard_metrics_test.dart` |
+| 18 | Renderizar `AdminDashboardScreen` mientras carga | Muestra el título "Panel de control", el indicador de carga y el botón de actualizar | ✅ Pasa | `test/widget/admin_dashboard_screen_test.dart` |
+| 19 | Renderizar la vista previa de smartwatch (`/wearable`) | Se dibuja el marco del reloj con su encabezado y un `Navigator` anidado propio | ✅ Pasa | `test/widget/wearable_preview_screen_test.dart` |
+| 20 | Verificar el tamaño de la pantalla simulada del reloj | Es ≤ 320 dp, es decir dentro del breakpoint wearable, para que se rendericen las pantallas de reloj | ✅ Pasa | `test/widget/wearable_preview_screen_test.dart` |
+| 21 | Consultar `WearablePreviewScope` dentro y fuera del marco del reloj | `true` dentro del marco (navegación anidada) y `false` fuera (navegación con GoRouter) | ✅ Pasa | `test/widget/wearable_preview_screen_test.dart` |
+| 22 | Renderizar el indicador de desplazamiento circular antes y después del layout del scroll | No dibuja nada sin clientes de scroll; dibuja el arco una vez que hay contenido | ✅ Pasa | `test/widget/rounded_scroll_indicator_test.dart` |
 
-11 casos automatizados (supera el mínimo de 8 pedido por la rúbrica), más los manuales de la siguiente
+22 casos automatizados (supera el mínimo de 8 pedido por la rúbrica), más los manuales de la siguiente
 sección.
 
 ## Reporte de resultados
 
 ```
 $ flutter test
-00:00 +8: models_test.dart — 8/8
-00:00 +8: utils_test.dart — 8/8
-00:01 +9: login_screen_test.dart — 3/3
-00:01 +3: news_card_test.dart — 6/6
-00:01 +1: widget_test.dart (AppFooter) — 1/1
-00:02 +26: All tests passed!
+00:00 +8: models_test.dart
+00:00 +8: utils_test.dart
+00:01 +5: search_test.dart
+00:01 +14: dashboard_metrics_test.dart
+00:02 +3: login_screen_test.dart
+00:02 +6: news_card_test.dart
+00:03 +2: rounded_scroll_indicator_test.dart
+00:03 +4: wearable_preview_screen_test.dart
+00:03 +1: admin_dashboard_screen_test.dart
+00:04 +1: widget_test.dart (AppFooter)
+00:04 +52: All tests passed!
 ```
 
-Total: **26 pruebas, 26 exitosas, 0 fallidas.**
+Total: **52 pruebas, 52 exitosas, 0 fallidas** (`flutter analyze`: `No issues found!`).
 
 ## Hallazgo encontrado y corregido durante esta ronda (P-01)
 
@@ -81,6 +98,62 @@ de manejo de errores.
 | M5 | Iniciar sesión como usuario `Admin` vs. usuario `User` | Solo `Admin` ve las pestañas "Noticias (Admin)" y "Usuarios" | Requiere backend con cuentas de ambos roles |
 | M6 | Simular que el backend tarda más de 15 segundos en responder | Aparece el mensaje "El servidor tardó demasiado en responder. Intenta de nuevo." en vez de un spinner infinito | Verificado por inspección de código tras el fix de P-01; pendiente de automatizar con un cliente HTTP inyectable |
 | M7 | Registrar una cuenta nueva y verificar que aparece en `/admin/users` como Admin | El nuevo usuario existe con rol `User` por defecto | Requiere backend real, es un flujo de integración de dos pantallas |
+
+## Pruebas en emulador (simulador de la app)
+
+### Matriz de dispositivos
+
+| Entorno | Dispositivo / AVD | Resolución | Sistema | Qué se verifica |
+|---|---|---|---|---|
+| Reloj | `Wear_OS_XL_Round` (`sdk_gwear_x86_64`) | 480 × 480 | Wear OS, Android 17 | Pantallas de reloj, indicador de desplazamiento circular, app autónoma (sin teléfono emparejado) |
+| Navegador escritorio | Chrome, ventana ≥ 1280 px | — | — | Navegación lateral, panel de control, vista previa `/wearable` |
+| Navegador móvil | Chrome, ventana ≤ 768 px | — | — | Barra de navegación inferior |
+| Navegador estrecho | Chrome, ventana ≤ 320 px | — | — | Cambio automático a layout wearable por breakpoint |
+
+### Procedimiento en el emulador Wear OS
+
+```bash
+emulator -avd Wear_OS_XL_Round
+```
+
+```bash
+cd PWA-APP && flutter build apk --release
+```
+
+```bash
+adb -s emulator-5554 install -r build/app/outputs/flutter-apk/app-release.apk
+```
+
+```bash
+adb -s emulator-5554 shell am start -n com.example.pwa_app/.MainActivity
+```
+
+Captura de evidencia (una imagen por pantalla, guardadas en `docs/pruebas/evidencias/`):
+
+```bash
+adb -s emulator-5554 exec-out screencap -p > docs/pruebas/evidencias/wear-lista.png
+```
+
+### Casos a verificar en el emulador
+
+| # | Acción | Resultado esperado |
+|---|---|---|
+| E1 | Abrir la app en el reloj | Entra directo a la lista de noticias, **sin** pantalla de login (app autónoma) |
+| E2 | Desplazar la lista | Aparece el indicador de desplazamiento en arco, pegado al borde curvo |
+| E3 | Tocar una noticia | Abre el detalle en formato de reloj; el botón de regreso vuelve a la lista |
+| E4 | Activar el modo avión y tocar actualizar | Se muestra el estado de error con botón "Reintentar", no un spinner infinito |
+
+### Estado de la evidencia
+
+Las capturas están **pendientes**: en el equipo donde se preparó la versión 1.4.0,
+Gradle falla antes de compilar el APK con `java.io.IOException: Unable to establish
+loopback connection`, tanto con el demonio activo como con `--no-daemon`. Se
+descartó que fuera un problema del proyecto o del JDK — la misma JVM
+(`temurin-21.0.10`) abre y acepta conexiones a `127.0.0.1` sin problema en una
+prueba aislada, y limpiar `~/.gradle/native` no lo corrige. Apunta a software de
+seguridad del equipo interceptando el socket local de Gradle. Las pruebas
+automatizadas y el análisis estático no dependen de Gradle y sí se ejecutaron
+(52/52).
 
 ## Pendientes para elevar la cobertura (no bloquean SA)
 
