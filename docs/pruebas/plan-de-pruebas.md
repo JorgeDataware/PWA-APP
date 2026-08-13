@@ -7,8 +7,8 @@ cd PWA-APP
 flutter test
 ```
 
-Última ejecución: **52/52 pruebas pasan** (`flutter test`, ver [reporte](#reporte-de-resultados) abajo).
-Duración total: ~4 segundos. Versión probada: **1.4.0** (ver
+Última ejecución: **60/60 pruebas pasan** (`flutter test`, ver [reporte](#reporte-de-resultados) abajo).
+Duración total: ~5 segundos. Versión probada: **1.5.0** (ver
 [versionado-y-release.md](../versionado-y-release.md)).
 
 ## Alcance
@@ -52,7 +52,13 @@ nota en `test/widget_test.dart` y el hallazgo P-01 más abajo.
 | 21 | Consultar `WearablePreviewScope` dentro y fuera del marco del reloj | `true` dentro del marco (navegación anidada) y `false` fuera (navegación con GoRouter) | ✅ Pasa | `test/widget/wearable_preview_screen_test.dart` |
 | 22 | Renderizar el indicador de desplazamiento circular antes y después del layout del scroll | No dibuja nada sin clientes de scroll; dibuja el arco una vez que hay contenido | ✅ Pasa | `test/widget/rounded_scroll_indicator_test.dart` |
 
-22 casos automatizados (supera el mínimo de 8 pedido por la rúbrica), más los manuales de la siguiente
+| 23 | Parsear una entrada de auditoría exitosa y una fallida anónima (login rechazado) | Ambas se parsean; la anónima queda con actor "Anónimo", `success: false` y su motivo de error | ✅ Pasa | `test/unit/audit_log_test.dart` |
+| 24 | Parsear una entrada de auditoría sin nombre de usuario | El actor se muestra como "Usuario {id}", la operación sigue siendo atribuible | ✅ Pasa | `test/unit/audit_log_test.dart` |
+| 25 | Formatear un `ApiException` 500 con código de rastreo | El mensaje incluye `(código: …)` para que el usuario pueda reportarlo | ✅ Pasa | `test/unit/audit_log_test.dart` |
+| 26 | Formatear un `ApiException` 400 con código de rastreo | El mensaje **no** incluye el código: un error de validación se explica solo | ✅ Pasa | `test/unit/audit_log_test.dart` |
+| 27 | Renderizar el panel de auditoría | Muestra el encabezado, el interruptor "Sólo fallas" (apagado por omisión) y el estado de carga | ✅ Pasa | `test/widget/audit_trail_panel_test.dart` |
+
+27 casos automatizados (supera el mínimo de 8 pedido por la rúbrica), más los manuales de la siguiente
 sección.
 
 ## Reporte de resultados
@@ -63,16 +69,18 @@ $ flutter test
 00:00 +8: utils_test.dart
 00:01 +5: search_test.dart
 00:01 +14: dashboard_metrics_test.dart
+00:01 +6: audit_log_test.dart
 00:02 +3: login_screen_test.dart
 00:02 +6: news_card_test.dart
 00:03 +2: rounded_scroll_indicator_test.dart
-00:03 +4: wearable_preview_screen_test.dart
-00:03 +1: admin_dashboard_screen_test.dart
-00:04 +1: widget_test.dart (AppFooter)
-00:04 +52: All tests passed!
+00:03 +2: audit_trail_panel_test.dart
+00:04 +4: wearable_preview_screen_test.dart
+00:04 +1: admin_dashboard_screen_test.dart
+00:05 +1: widget_test.dart (AppFooter)
+00:05 +60: All tests passed!
 ```
 
-Total: **52 pruebas, 52 exitosas, 0 fallidas** (`flutter analyze`: `No issues found!`).
+Total: **60 pruebas, 60 exitosas, 0 fallidas** (`flutter analyze`: `No issues found!`).
 
 ## Hallazgo encontrado y corregido durante esta ronda (P-01)
 

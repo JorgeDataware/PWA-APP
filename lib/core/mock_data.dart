@@ -1,3 +1,4 @@
+import '../models/audit_log.dart';
 import '../models/favorite.dart';
 import '../models/news.dart';
 import '../models/user.dart';
@@ -455,6 +456,111 @@ class MockData {
         role: role ?? u.role,
         createdAt: u.createdAt,
       );
+
+  // ---- Audit trail --------------------------------------------------------
+
+  /// Seeded audit entries, newest first, including two failed operations so
+  /// the "sólo fallas" view has something to show without a backend.
+  static List<AuditLog> _auditSeed() {
+    final now = DateTime.now();
+    return [
+      AuditLog(
+        id: 5,
+        occurredAt: now.subtract(const Duration(minutes: 3)),
+        traceId: 'MOCK-0000005',
+        userId: 1,
+        username: 'admin',
+        role: 'Admin',
+        method: 'POST',
+        path: '/api/web/news',
+        action: 'Publicación de noticia',
+        statusCode: 201,
+        success: true,
+        durationMs: 142,
+        ipAddress: '127.0.0.1',
+      ),
+      AuditLog(
+        id: 4,
+        occurredAt: now.subtract(const Duration(minutes: 12)),
+        traceId: 'MOCK-0000004',
+        method: 'POST',
+        path: '/api/auth/login',
+        action: 'Inicio de sesión',
+        statusCode: 401,
+        success: false,
+        durationMs: 88,
+        ipAddress: '127.0.0.1',
+        error: 'Credenciales inválidas o sesión expirada',
+      ),
+      AuditLog(
+        id: 3,
+        occurredAt: now.subtract(const Duration(hours: 1)),
+        traceId: 'MOCK-0000003',
+        userId: 1,
+        username: 'admin',
+        role: 'Admin',
+        method: 'PATCH',
+        path: '/api/web/users/3/status',
+        action: 'Cambio de estado de cuenta',
+        statusCode: 200,
+        success: true,
+        durationMs: 96,
+        ipAddress: '127.0.0.1',
+      ),
+      AuditLog(
+        id: 2,
+        occurredAt: now.subtract(const Duration(hours: 5)),
+        traceId: 'MOCK-0000002',
+        userId: 2,
+        username: 'jperez',
+        role: 'User',
+        method: 'DELETE',
+        path: '/api/web/news/7',
+        action: 'Eliminación de noticia',
+        statusCode: 403,
+        success: false,
+        durationMs: 61,
+        ipAddress: '127.0.0.1',
+        error: 'Permisos insuficientes',
+      ),
+      AuditLog(
+        id: 1,
+        occurredAt: now.subtract(const Duration(days: 1)),
+        traceId: 'MOCK-0000001',
+        userId: 1,
+        username: 'admin',
+        role: 'Admin',
+        method: 'PUT',
+        path: '/api/web/news/4',
+        action: 'Edición de noticia',
+        statusCode: 200,
+        success: true,
+        durationMs: 133,
+        ipAddress: '127.0.0.1',
+      ),
+    ];
+  }
+
+  static Future<List<AuditLog>> auditLogs({
+    int limit = 50,
+    bool onlyFailures = false,
+  }) async {
+    await _delay();
+    final entries = _auditSeed().where((a) => !onlyFailures || !a.success);
+    return entries.take(limit).toList();
+  }
+
+  static Future<AuditLog> auditLogByTraceId(String traceId) async {
+    await _delay();
+    final match = _auditSeed().where((a) => a.traceId == traceId);
+    if (match.isEmpty) {
+      throw ApiException(
+        statusCode: 404,
+        message: 'No hay ninguna operación registrada con el código $traceId.',
+      );
+    }
+    return match.first;
+  }
 }
 
 class _Account {

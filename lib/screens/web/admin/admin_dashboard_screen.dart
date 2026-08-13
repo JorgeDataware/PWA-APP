@@ -8,6 +8,7 @@ import '../../../models/news.dart';
 import '../../../models/user.dart';
 import '../../../services/news_service.dart';
 import '../../../services/user_service.dart';
+import 'audit_trail_panel.dart';
 
 /// Admin landing page: the figures of the site at a glance (content volume,
 /// publishing cadence, user base) computed from the endpoints the app
@@ -164,6 +165,10 @@ class _DashboardBody extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 20),
+          // Carga su propio contenido: el registro de auditoría se consulta
+          // aparte para que un fallo al leerlo no tire el resto del panel.
+          const AuditTrailPanel(),
           const SizedBox(height: 20),
           Wrap(
             spacing: 12,

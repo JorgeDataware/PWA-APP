@@ -7,10 +7,25 @@ class ApiException implements Exception {
   final int statusCode;
   final String message;
 
-  const ApiException({required this.statusCode, required this.message});
+  /// Correlation code returned by the API (`X-Trace-Id`). The same value is in
+  /// the server log and in the audit trail, so a user can report it and an
+  /// administrator can find the exact failed operation in `/admin/dashboard`.
+  final String? traceId;
+
+  const ApiException({
+    required this.statusCode,
+    required this.message,
+    this.traceId,
+  });
+
+  /// Only server-side failures are worth showing a code for: a validation
+  /// error is actionable on its own, a 500 is not.
+  bool get isServerFailure => statusCode >= 500;
 
   @override
-  String toString() => message;
+  String toString() => traceId != null && isServerFailure
+      ? '$message (código: $traceId)'
+      : message;
 }
 
 class ApiClient {
@@ -116,7 +131,11 @@ class ApiClient {
       if (res.body.isEmpty || res.body == 'null') return null;
       return jsonDecode(res.body);
     }
-    throw ApiException(statusCode: res.statusCode, message: _extractError(res));
+    throw ApiException(
+      statusCode: res.statusCode,
+      message: _extractError(res),
+      traceId: _extractTraceId(res),
+    );
   }
 
   static void _handleNoContent(http.Response res) {
@@ -124,8 +143,23 @@ class ApiClient {
       throw ApiException(
         statusCode: res.statusCode,
         message: _extractError(res),
+        traceId: _extractTraceId(res),
       );
     }
+  }
+
+  /// The API sends the code both as a header and, for unhandled exceptions, in
+  /// the body. The header is authoritative; the body is the fallback.
+  static String? _extractTraceId(http.Response res) {
+    final header = res.headers['x-trace-id'];
+    if (header != null && header.isNotEmpty) return header;
+    try {
+      final body = jsonDecode(res.body);
+      if (body is Map && body['traceId'] != null) {
+        return body['traceId'].toString();
+      }
+    } catch (_) {}
+    return null;
   }
 
   static String _extractError(http.Response res) {

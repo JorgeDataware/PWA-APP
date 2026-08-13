@@ -12,6 +12,46 @@ se crean en el momento del release.
 
 ---
 
+## [1.5.0] — 2026-08-13
+
+Trazabilidad de fallas: registro estructurado, correlación extremo a extremo y
+bitácora de auditoría consultable.
+
+### Agregado
+- **API** · Registro estructurado con Serilog hacia consola y archivo rotado por
+  día (`logs/technews-*.log`, retención de 14 días). Las respuestas 4xx se
+  registran como advertencia y las 5xx como error, para poder filtrar fallas por
+  nivel. (`Program.cs`)
+- **API** · `RequestTraceMiddleware`: asigna un código de rastreo por petición, lo
+  devuelve en la cabecera `X-Trace-Id` y lo propaga al contexto de log.
+- **API** · `AuditMiddleware` y tabla `audit_logs`: un registro por cada operación
+  que modifica estado — exitosa o fallida — con actor, rol, ruta, código de
+  estado, duración, IP y motivo del error. Se audita en el middleware para que
+  ningún endpoint nuevo quede fuera del registro por omisión.
+- **API** · Endpoints `GET /api/web/audit` y `GET /api/web/audit/{traceId}`
+  (sólo Admin) para consultar la bitácora y localizar una operación por su código.
+- **App** · Panel "Registro de auditoría" en el dashboard, con interruptor
+  *Sólo fallas* y el código de rastreo seleccionable para copiarlo.
+- **App** · `ApiException.traceId`: el código viaja al cliente y se muestra al
+  usuario únicamente en fallas del servidor (5xx).
+- Documento [`docs/auditoria-y-registro.md`](docs/auditoria-y-registro.md) con el
+  procedimiento de investigación de una falla y lo que deliberadamente no se
+  registra (cuerpos de petición, credenciales, tokens).
+
+### Cambiado
+- `GlobalExceptionHandler` incluye el código de rastreo en el cuerpo del error y
+  en la línea de log de la excepción.
+
+### Base de datos
+- Migración `AddAuditLog`: crea `audit_logs` con índices por fecha descendente,
+  éxito y código de rastreo. Se aplica automáticamente al iniciar la API.
+
+### Pruebas
+- 60 pruebas en total; 8 nuevas (parseo de auditoría, formato del código de
+  rastreo, panel de auditoría).
+
+---
+
 ## [1.4.0] — 2026-08-13
 
 Enlace explícito entre el sitio web y el smartwatch, y panel de control para
@@ -113,4 +153,5 @@ Commits: `5aafd9c`, `f6726dd`, `b7577ad`.
 
 ---
 
+[1.5.0]: https://github.com/JorgeDataware/PWA-APP/releases/tag/v1.5.0
 [1.4.0]: https://github.com/JorgeDataware/PWA-APP/releases/tag/v1.4.0
