@@ -7,7 +7,7 @@ cd PWA-APP
 flutter test
 ```
 
-Última ejecución: **60/60 pruebas pasan** (`flutter test`, ver [reporte](#reporte-de-resultados) abajo).
+Última ejecución: **62/62 pruebas pasan** (`flutter test`, ver [reporte](#reporte-de-resultados) abajo).
 Duración total: ~5 segundos. Versión probada: **1.5.0** (ver
 [versionado-y-release.md](../versionado-y-release.md)).
 
@@ -38,7 +38,7 @@ nota en `test/widget_test.dart` y el hallazgo P-01 más abajo.
 | 7 | Renderizar `NewsCard` con `favoriteLocked: true` (usuario invitado) y tocar el ícono de favorito | Muestra `Icons.bookmark_outline` y, al tocarlo, invoca el callback de "solicitar login" en vez de guardar el favorito | ✅ Pasa | `test/widget/news_card_test.dart` |
 | 8 | Enviar el formulario de login con los campos vacíos | Se muestran dos mensajes "Requerido" (email y contraseña) y **no** se intenta llamar a `AuthProvider.login` | ✅ Pasa | `test/widget/login_screen_test.dart` |
 | 9 | Renderizar `LoginScreen` | Aparece el enlace "Explorar noticias sin cuenta" (navegación de invitado) | ✅ Pasa | `test/widget/login_screen_test.dart` |
-| 10 | Renderizar `AppFooter` | Muestra los tres enlaces legales (Acerca de / Aviso de privacidad / Contacto), los íconos sociales y la línea de copyright | ✅ Pasa | `test/widget_test.dart` |
+| 10 | Renderizar `AppFooter` | Muestra los enlaces legales (Acerca de / Aviso de privacidad / Términos y condiciones / Contacto), los íconos sociales y la línea de copyright | ✅ Pasa | `test/widget_test.dart` |
 | 11 | Cargar una `NewsCard` con una URL de imagen inválida | Se muestra el ícono de imagen rota (`errorBuilder`) en vez de romper el árbol de widgets | ✅ Pasa | `test/widget/news_card_test.dart` |
 | 12 | Buscar por título y por contenido, sin distinguir mayúsculas, y con una consulta vacía | Devuelve coincidencias ordenadas por fecha descendente; lista vacía si la consulta está vacía o no hay coincidencias | ✅ Pasa | `test/unit/search_test.dart` |
 | 13 | Calcular las ventanas de 7 y 30 días del panel con un `now` fijo | Sólo cuenta las noticias dentro de cada ventana | ✅ Pasa | `test/unit/dashboard_metrics_test.dart` |
@@ -57,8 +57,10 @@ nota en `test/widget_test.dart` y el hallazgo P-01 más abajo.
 | 25 | Formatear un `ApiException` 500 con código de rastreo | El mensaje incluye `(código: …)` para que el usuario pueda reportarlo | ✅ Pasa | `test/unit/audit_log_test.dart` |
 | 26 | Formatear un `ApiException` 400 con código de rastreo | El mensaje **no** incluye el código: un error de validación se explica solo | ✅ Pasa | `test/unit/audit_log_test.dart` |
 | 27 | Renderizar el panel de auditoría | Muestra el encabezado, el interruptor "Sólo fallas" (apagado por omisión) y el estado de carga | ✅ Pasa | `test/widget/audit_trail_panel_test.dart` |
+| 28 | Renderizar la pantalla de términos y condiciones | Muestra el encabezado y la fecha de última actualización | ✅ Pasa | `test/widget/terms_screen_test.dart` |
+| 29 | Verificar la cobertura de secciones de los términos | Existen las secciones de aceptación, uso aceptable, propiedad intelectual, limitación de responsabilidad, datos personales y legislación aplicable | ✅ Pasa | `test/widget/terms_screen_test.dart` |
 
-27 casos automatizados (supera el mínimo de 8 pedido por la rúbrica), más los manuales de la siguiente
+29 casos automatizados (supera el mínimo de 8 pedido por la rúbrica), más los manuales de la siguiente
 sección.
 
 ## Reporte de resultados
@@ -74,13 +76,14 @@ $ flutter test
 00:02 +6: news_card_test.dart
 00:03 +2: rounded_scroll_indicator_test.dart
 00:03 +2: audit_trail_panel_test.dart
+00:04 +2: terms_screen_test.dart
 00:04 +4: wearable_preview_screen_test.dart
 00:04 +1: admin_dashboard_screen_test.dart
 00:05 +1: widget_test.dart (AppFooter)
-00:05 +60: All tests passed!
+00:05 +62: All tests passed!
 ```
 
-Total: **60 pruebas, 60 exitosas, 0 fallidas** (`flutter analyze`: `No issues found!`).
+Total: **62 pruebas, 62 exitosas, 0 fallidas** (`flutter analyze`: `No issues found!`).
 
 ## Hallazgo encontrado y corregido durante esta ronda (P-01)
 

@@ -21,6 +21,7 @@ import 'screens/wearable/wearable_news_list_screen.dart';
 import 'screens/wearable/wearable_news_detail_screen.dart';
 import 'screens/legal/about_screen.dart';
 import 'screens/legal/privacy_policy_screen.dart';
+import 'screens/legal/terms_screen.dart';
 import 'screens/legal/contact_screen.dart';
 
 void main() async {
@@ -81,6 +82,7 @@ class _TechNewsAppState extends State<TechNewsApp> {
             path == '/wearable' ||
             path == '/about' ||
             path == '/privacy' ||
+            path == '/terms' ||
             path == '/contact' ||
             isAuthPath;
 
@@ -112,6 +114,10 @@ class _TechNewsAppState extends State<TechNewsApp> {
         GoRoute(
           path: '/privacy',
           builder: (context, state) => const PrivacyPolicyScreen(),
+        ),
+        GoRoute(
+          path: '/terms',
+          builder: (context, state) => const TermsScreen(),
         ),
         GoRoute(
           path: '/contact',

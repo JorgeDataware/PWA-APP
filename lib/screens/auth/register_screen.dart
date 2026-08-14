@@ -189,6 +189,50 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             )
                           : const Text('Crear cuenta'),
                     ),
+                    const SizedBox(height: 12),
+                    // Legal notice at the point of consent: creating the
+                    // account is what binds the user to the terms, so the
+                    // links belong here and not only in the footer.
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const Text(
+                          'Al crear una cuenta aceptas los ',
+                          style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                        ),
+                        InkWell(
+                          onTap: () => context.push('/terms'),
+                          child: const Text(
+                            'Términos y condiciones',
+                            style: TextStyle(
+                              color: AppTheme.accent,
+                              fontSize: 12,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                        const Text(
+                          ' y el ',
+                          style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                        ),
+                        InkWell(
+                          onTap: () => context.push('/privacy'),
+                          child: const Text(
+                            'Aviso de privacidad',
+                            style: TextStyle(
+                              color: AppTheme.accent,
+                              fontSize: 12,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                        const Text(
+                          '.',
+                          style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 16),
                     Wrap(
                       alignment: WrapAlignment.center,

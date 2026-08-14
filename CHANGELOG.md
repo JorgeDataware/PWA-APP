@@ -12,6 +12,41 @@ se crean en el momento del release.
 
 ---
 
+## [1.6.0] — 2026-08-13
+
+Términos y condiciones de uso, enlazados desde el punto real de consentimiento.
+
+### Agregado
+- Pantalla pública `/terms` con los términos y condiciones de uso: aceptación,
+  descripción del servicio, registro y cuenta, uso aceptable, propiedad
+  intelectual, moderación de contenido, disponibilidad, limitación de
+  responsabilidad, enlaces de terceros, suspensión de cuenta, tratamiento de
+  datos personales, modificaciones, legislación aplicable y contacto.
+  (`lib/screens/legal/terms_screen.dart`)
+- Enlace "Términos y condiciones" en el pie de página, junto al aviso de
+  privacidad. (`lib/widgets/app_footer.dart`)
+- Leyenda de aceptación en la pantalla de registro — *"Al crear una cuenta
+  aceptas los Términos y condiciones y el Aviso de privacidad"* — con enlace a
+  ambos documentos. El alta de la cuenta es el punto donde el usuario queda
+  obligado por los términos, así que los enlaces viven ahí y no sólo en el pie
+  de página. (`lib/screens/auth/register_screen.dart`)
+- Documento [`docs/laboratorio/practicas-3-4-navegadores-y-buscador.md`](docs/laboratorio/practicas-3-4-navegadores-y-buscador.md):
+  librerías empleadas según el navegador de destino (incluido el WebView de Wear
+  OS), justificación de por qué no se implementaron notificaciones push,
+  optimizaciones de desempeño móvil y pruebas del buscador interno.
+
+### Cambiado
+- `/terms` se suma a la lista de rutas públicas del router: los documentos
+  legales deben poder leerse sin iniciar sesión. (`lib/main.dart`)
+- Sección M6 de [`docs/seguridad/owasp-mobile-top10.md`](docs/seguridad/owasp-mobile-top10.md):
+  ahora cita ambos documentos legales y dónde se enlazan.
+
+### Pruebas
+- 62 pruebas en total; 2 nuevas (encabezado y cobertura de secciones de los
+  términos). La prueba del pie de página verifica además el enlace nuevo.
+
+---
+
 ## [1.5.0] — 2026-08-13
 
 Trazabilidad de fallas: registro estructurado, correlación extremo a extremo y
@@ -153,5 +188,6 @@ Commits: `5aafd9c`, `f6726dd`, `b7577ad`.
 
 ---
 
+[1.6.0]: https://github.com/JorgeDataware/PWA-APP/releases/tag/v1.6.0
 [1.5.0]: https://github.com/JorgeDataware/PWA-APP/releases/tag/v1.5.0
 [1.4.0]: https://github.com/JorgeDataware/PWA-APP/releases/tag/v1.4.0

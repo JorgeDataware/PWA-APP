@@ -54,10 +54,12 @@ endpoint HTTP, el navegador lo bloquearía.
 
 ## M6: Privacidad inadecuada
 
-**Aplica.** Ver [plan-retencion-datos.md](plan-retencion-datos.md) y el
-[aviso de privacidad](../../lib/screens/legal/privacy_policy_screen.dart) accesible en `/privacy` dentro de
-la app. TechNews recaba el mínimo de datos necesario (nombre, username, email) y permite navegar y leer
-noticias sin cuenta ni recolección de datos personales.
+**Aplica.** Ver [plan-retencion-datos.md](plan-retencion-datos.md), el
+[aviso de privacidad](../../lib/screens/legal/privacy_policy_screen.dart) accesible en `/privacy` y los
+[términos y condiciones](../../lib/screens/legal/terms_screen.dart) en `/terms` dentro de la app. TechNews
+recaba el mínimo de datos necesario (nombre, username, email) y permite navegar y leer noticias sin cuenta
+ni recolección de datos personales. Ambos documentos legales se enlazan desde el pie de página y desde la
+pantalla de registro, que es el punto real de consentimiento.
 
 ## M7: Autenticación insuficiente en el binario/cliente
 

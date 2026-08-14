@@ -1,7 +1,7 @@
 name: pwa_app
 description: "TechNews PWA - Blog de noticias tecnológicas para web y wearable."
 publish_to: 'none'
-version: 1.5.0+6
+version: 1.6.0+7
 
 environment:
   sdk: ^3.9.0

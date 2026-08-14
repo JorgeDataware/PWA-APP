@@ -17,6 +17,7 @@ void main() {
 
     expect(find.text('Acerca de'), findsOneWidget);
     expect(find.text('Aviso de privacidad'), findsOneWidget);
+    expect(find.text('Términos y condiciones'), findsOneWidget);
     expect(find.text('Contacto'), findsOneWidget);
     expect(find.byIcon(Icons.facebook), findsOneWidget);
     expect(find.textContaining('TechNews'), findsWidgets);
